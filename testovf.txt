@@ -1,0 +1,45 @@
+With -O2:
+
+   0:   31 c0                   xor    %eax,%eax
+   2:   c3                      retq
+
+According to the GCC Manual, -O2 turns on a flag called “-fstrict-overflow”, which means that the compiler assumes no overflow during any operations. Thus, i + x < i never holds for any number i when x is a non-negative number. In this example, LONG_MAX is positive, so the compiler directly returns 0.  
+
+With -O2 -fsanitize=undefined:
+
+   0:   55                      push   %rbp
+   1:   53                      push   %rbx
+   2:   48 ba ff ff ff ff ff    movabs $0x7fffffffffffffff,%rdx
+   9:   ff ff 7f
+   c:   48 83 ec 08             sub    $0x8,%rsp
+  10:   48 8b 1d 00 00 00 00    mov    0x0(%rip),%rbx        # 17 <testovf+0x17>
+  17:   48 89 dd                mov    %rbx,%rbp
+  1a:   48 01 d5                add    %rdx,%rbp
+  1d:   70 0d                   jo     2c <testovf+0x2c>
+  1f:   48 39 eb                cmp    %rbp,%rbx
+  22:   0f 9f c0                setg   %al
+  25:   48 83 c4 08             add    $0x8,%rsp
+  29:   5b                      pop    %rbx
+  2a:   5d                      pop    %rbp
+  2b:   c3                      retq
+  2c:   48 89 de                mov    %rbx,%rsi
+  2f:   bf 00 00 00 00          mov    $0x0,%edi
+  34:   e8 00 00 00 00          callq  39 <testovf+0x39>
+  39:   eb e4                   jmp    1f <testovf+0x1f>
+
+According to an online documentation for UndefinedBegaviorSanitizer, -fsanitize=undefined enables the program to catch various kinds of undefined behavior during program execution, including signed integer overflow.
+In the above example, we can see that the instruction
+	jo     2c <testovf+0x2c>	(jump if overflows)
+checks for overflow and deals with it if problem appears, then jumps back to comparison. If no overflow is detected, then the two values are compared directly.
+
+With -O2 -fwrapv:
+
+   0:   48 8b 15 00 00 00 00    mov    0x0(%rip),%rdx        # 7 <testovf+0x7>
+   7:   48 b8 ff ff ff ff ff    movabs $0x7fffffffffffffff,%rax
+   e:   ff ff 7f
+  11:   48 01 d0                add    %rdx,%rax
+  14:   48 39 c2                cmp    %rax,%rdx
+  17:   0f 9f c0                setg   %al
+  1a:   c3                      retq
+
+With -fwrapv, signed integer overflow is defined at compile time. Overflowed signed integers will be “wrapped” and allowed for further operations. That is why in the example, the program can directly sum the two numbers and apply regular comparison.
