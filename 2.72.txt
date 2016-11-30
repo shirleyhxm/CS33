@@ -1,0 +1,8 @@
+A. The sizeof operator returns a value of type size_t, and size_t is unsigned, so the result maxbytes-sizeof(val) will be unsigned as well. Since all unsigned integers are considered to be non-negative, the conditional test will always succeed.
+
+B. 
+void copy_int(int val, void *buf, int maxbytes)
+{
+	if (maxbytes >= sizeof(val))
+	   memcpy(buf, (void *) $val, sizeof(val));
+} 
