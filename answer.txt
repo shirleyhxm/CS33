@@ -1,0 +1,38 @@
+================================================================
+12.18
+
+Suppose we use () to indicate the critical section of thread 1,
+and use [] to indicate the critical section of thread 2.
+Based on the graph, we know that a trajectory crosses its unsafe
+region when () and [] intersect or when one contains the other.
+
+For example,
+H1 H2 (L1 U1 S1) [L2 U2 S2] T1 T2  -  safe
+H1 H2 (L1 U1 [L2 S1) U2 S2] T1 T2  -  unsafe
+
+A. 
+The trajectory after applying brackets looks like:
+H2 [L2 U2 (H1 L1 S2] U1 S1) T1 T2
+() and [] intersect, so unsafe.
+
+B.
+The trajectory after applying brackets looks like:
+H2 H1 (L1 U1 S1) [L2 T1 U2 S2] T2
+No intersection, so safe.
+
+C.
+The trajectory after applying brackets looks like:
+H1 (L1 H2 [L2 U2 S2] U1 S1) T1 T2
+() contains [], so unsafe.
+================================================================
+12.24
+
+All functions in RIO I/O package have arguments passed in by pointers,
+and they are thread-safe, so they are implicitly reentrant (reentrant
+only when the pointers passed in by the caller points to non-shared
+data).
+
+For instance, in the case of Figure 10.5, rio_writen(...) is reentrant 
+since it does not use any global variables, while rio_readinitb(...) is 
+non-reentrant since it uses a global struct rio_t.
+================================================================
