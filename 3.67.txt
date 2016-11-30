@@ -1,0 +1,70 @@
+A.			|		|
+			+---------------+
+			| rtn "address"	|
+	%rsp+104  ->	+---------------+
+			|		|
+			|		|
+			|		|
+			|		|
+			+---------------+
+			|		|
+	%rsp+64   ->	+---------------+   <-  r
+			|		|
+			|		|
+			|		|
+			+---------------+
+			|	z	|
+	%rsp+24	  ->	+---------------+
+		  	|	&z	|
+	%rsp+16	  ->	+---------------+
+		  	|	y	|
+	%rsp+8    ->	+---------------+
+		  	|	x	|
+	%rsp	  ->	+---------------+   <-  s
+			|		|
+
+B. "eval" passes &r to "process"
+
+C. "process" accesses the elements of s by dereferencing the addresses in the stack that store elements of s:
+   s.a[0]    <=>      (%rsp)	   <=>	   x
+   s.a[1]    <=>      (%rsp+8)	   <=>	   y
+   s.p	     <=>      (%rsp+16)	   <=>	   &z
+
+D. "process" set the fields of r by storing elements of s into preallocated addresses for r:
+   r.u[0]    <=>     (%rsp+64) 	    <=	    (%rsp+8) 	  <=>  y
+   r.u[1]    <=>     (%rsp+72)	    <=	    (%rsp)	  <=>  x
+   r.q	     <=>     (%rsp+80)	    <=	    (%rsp+24)	  <=>  z
+
+
+E. (before line 13: "addq $104, %rsp")
+			|		|
+			+---------------+
+			| rtn "address"	|
+	%rsp+104  ->	+---------------+
+			|		|
+			|		|
+			+---------------+
+			|	z	|
+	%rsp+80	  ->	+---------------+
+			|	x	|
+	%rsp+72   ->	+---------------+
+			|	y	|
+	%rsp+64   ->	+---------------+   <-  r
+			|		|
+			|		|
+			|		|
+			+---------------+
+			|	z	|
+	%rsp+24	  ->	+---------------+
+		  	|	&z	|
+	%rsp+16	  ->	+---------------+
+		  	|	y	|
+	%rsp+8    ->	+---------------+
+		  	|	x	|
+	%rsp	  ->	+---------------+   <-  s
+			|		|
+
+F. When a function has structure values as arguments,
+   the addresses of the structure values are passed in,
+   and the same addresses are returned as function results.
+
