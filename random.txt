@@ -1,0 +1,51 @@
+2.89
+
+Converting x,y,z to dx,dy,dz does not produce any loss since double has both greater ranger and greater precision compared to int.
+
+A. Yes
+
+Since x can be represented by an int, converting dx (double) to float will not overflow. And if converting x to float has to be rounded, then converting dx to float will have the same rounding.
+
+Not affected by -fwrapv.
+
+B. No
+
+Since double has greater range than int, it is possible that x-y overflows when dx-dy doesn't. In this case, two sides are not equal.
+
+Example:
+x = dx = INT_MIN
+y = dy = 1
+LHS = dx - dy < 0
+x - y > 0, RHS = (double) (x - y) > 0
+
+With -fwrapv, when x-y should overflow due to a too-small value, x-y becomes positive and still does not equal dx-dy.
+
+C. Yes
+
+Associativity for doubles fails when the first sum overflows. However, compared to the range for doubles, INT_MAX is still a very small number and will not cause overflow for double addtions.
+
+Not affected by -fwrapv.
+
+D. No
+
+Doubles can store integer values at most 2^53 precisely, while INT_MAX equals (2^31-1). Two sides may not equal due to different roundings.
+
+Example:
+dx == INT_MAX
+dy == INT_MAX
+dz = INT_MAX-1
+(dx * dy) and (dy * dz) will both be rounded but have different roundings. 
+
+Not affected by -fwrapv.
+
+E. No
+
+The equality holds unless dx or dz equals zero.
+
+Example:
+dx = 0
+dz = 1
+dx/dx = NaN
+dz/dz = 1
+
+Not affected by -fwrapv.
