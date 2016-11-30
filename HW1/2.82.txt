@@ -1,0 +1,28 @@
+A. YES
+   -x = ~x + 1
+   -y = ~y + 1
+   signed integer comparison works correctly
+
+B. NO
+   x = 0x07FFFFFF
+   y = 1
+   (x+y)<<4   <=>  0x80000000 = TMin
+
+C. YES
+   -x = ~x + 1  <=>  ~x = -x - 1
+   -y = ~y + 1  <=>  ~y = -y - 1
+   ~x+~y+1 = -x-y-1
+   	   = -(x+y)-1
+	   = ~(x+y)
+
+D. NO
+   ux,x = 0xC0000000
+   uy,y = 0x80000000
+   ux-uy  <=>  0x40000000  <=> positive
+   y-x  <=> 0xC0000000
+   -(unsigned)(y-x)  <=>   
+
+E. NO
+   x = 0xF0000002 (whenever x is negative)
+   x>>2  <=>  0xFC000000
+   (x>>2)<<2  <=>  0xF0000000
